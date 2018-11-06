@@ -5,6 +5,10 @@ using UnityEngine;
 [System.Serializable]
 public class CharacterActions : MonoBehaviour {
     //TODO implement so that your goal is enemy with your flag if they have it and your teammate has their flag.
+    
+    //TODO set path to enemy base every time something big happens.
+
+    // TODO make random chance of AI shooting when output value is 1. So that one of the 2 in combat will win hopefully.
 
     public MeshRenderer meshRenderer;
 
@@ -15,7 +19,7 @@ public class CharacterActions : MonoBehaviour {
     public float movSpeed;
 
     // Privates.
-    private double shootDelay = 1.0f;
+    private readonly double shootDelay = 1.0f;
     private double nextBulletShotTime = 0.0f;
     private int playerNumber;
     private bool isAI;
@@ -24,17 +28,25 @@ public class CharacterActions : MonoBehaviour {
     private Vector3 bluePosition = new Vector3(7, 1.85f, -15);
     private Vector3 redPosition = new Vector3(-7, 1.85f, -3);
 
-    //Values for network sensors:
+    // Values for network sensors:
     private bool isHoldingFlag;
     private bool isStandingInBase;
 
+    // Pathfinder:
+    PathFinder enemyBaseFinder;
+    PathFinder enemyWithFlagFinder;
+    PathFinder friendlyBaseFinder;
 
     // Network:
     readonly NeuralNetwork nn = new NeuralNetwork(new int[] { 8, 25, 25, 4 });
-    readonly List<double> inputs = new List<double>();
-
-    //PathFinder pf;    // Use to make better paths for AI, so it won't be trapped in corners.
-   
+    
+    
+    void Start()
+    {
+        enemyBaseFinder = new PathFinder();
+        enemyWithFlagFinder = new PathFinder(); 
+        friendlyBaseFinder = new PathFinder();
+    }
 
     void Update ()
     {
@@ -42,31 +54,39 @@ public class CharacterActions : MonoBehaviour {
         {
             if (isAI)   // Do actions of Network:
             {
-                // Clear input so there won't be any doubles.
-                inputs.Clear();
 
-                // Temp: Make simple pathfinder.
-                PathFinder pf = new PathFinder();
+                // TODO set correct position of player when getting complex path:
+                
+                Vector2 currentPosition = new Vector2((int)transform.position.x + 8, Mathf.Abs((int)transform.position.z) - 1);
+
                 int pathToEnemyBase = 0;        // Default left
                 int pathToMyBase = 0;           // Default left
-
-                // TODO get position of walls inside float[][] walls and send it through pf.GetPath()
+                
 
                 if (myTeam == "Red")
                 {
-                    pathToEnemyBase = pf.GetSimplePath(this.gameObject.transform.forward, this.transform.position, bluePosition);
-                    pathToMyBase = pf.GetSimplePath(this.gameObject.transform.forward, this.transform.position, redPosition);
+                    // Complex version:
+                    pathToEnemyBase = enemyBaseFinder.GetComplexPath((int)currentPosition.x, (int)currentPosition.y, 15, 15, this.transform); // Curent position, enemyFlagPosition, playertransform.
+                    pathToMyBase = friendlyBaseFinder.GetComplexPath((int)currentPosition.x, (int)currentPosition.y, 2, 1, this.transform); // Curent position, enemyFlagPosition, playertransform.
+
+                    // Simple version:
+                    //pathToEnemyBase = enemyBaseFinder.GetSimplePath(this.gameObject.transform.forward, this.transform.position, bluePosition);
+                    //pathToMyBase = friendlyBaseFinder.GetSimplePath(this.gameObject.transform.forward, this.transform.position, redPosition);
                 }
                 else if (myTeam == "Blue")
                 {
-                    pathToEnemyBase = pf.GetSimplePath(this.gameObject.transform.forward, this.transform.position, redPosition);
-                    pathToMyBase = pf.GetSimplePath(this.gameObject.transform.forward, this.transform.position, bluePosition);
+                    // Complex version:
+                    pathToEnemyBase = enemyBaseFinder.GetComplexPath((int)currentPosition.x, (int)currentPosition.y, 2, 1, this.transform); // Curent position, enemyFlagPosition, playertransform.
+                    pathToMyBase = friendlyBaseFinder.GetComplexPath((int)currentPosition.x, (int)currentPosition.y, 15, 15, this.transform); // Curent position, enemyFlagPosition, playertransform.
+
+                    // Simple version:
+                    //pathToEnemyBase = enemyBaseFinder.GetSimplePath(this.gameObject.transform.forward, this.transform.position, redPosition);
+                    //pathToMyBase = friendlyBaseFinder.GetSimplePath(this.gameObject.transform.forward, this.transform.position, bluePosition);
                 }
 
                 // Input to the brain of this player:
                 float[] input = new float[8];
-
-                //TODO always have a value 1 at beginning, so when the rest is all 0 we can get output = 1
+                
                 input[0] = 1;
                 // I hold the enemy flag:
                 input[1] = (isHoldingFlag) ? 1 : 0;
@@ -82,25 +102,28 @@ public class CharacterActions : MonoBehaviour {
                 input[6] = this.gameObject.GetComponent<FieldOfView>().IsEnemyLeftOrRight(this.gameObject.transform);
                 // Am I looking directly at enemy:
                 input[7] = this.gameObject.GetComponent<FieldOfView>().IsLookingStraightAtEnemy(this.gameObject.transform);
-
-                //TODO set 1 in value of all inputs, so that rest all 0 is valid
+                
                 
                 float[] output = nn.Run(input);
+
+                Debug.Log("Input: " + input[0] + " " + input[1] + " " + input[2] + " " + input[3] + " " + input[4] + " " + input[5] + " " + input[6] + " " + input[7]);
+                Debug.Log("output: " + output[0] + " " + output[1] + " " + output[2] + " " + output[3]);
                 
 
-                if (output[0] > 0.5)
+                // Output functions:
+                if (output[0] > 0.8)
                 {
                     move();
                 }
-                if (output[1] > 0.5)   // Rotate left:
+                if (output[1] > 0.8)   // Rotate left:
                 {
-                    rotate(-0.1f);
+                    rotate(0.2f);
                 }
-                if (output[2] > 0.5)   // Rotate right:
+                if (output[2] > 0.8)   // Rotate right:
                 {
-                    rotate(0.1f);
+                    rotate(-0.2f);
                 }
-                if (output[3] > 0.5)
+                if (output[3] > 0.8)
                 {
                     ShootBullet();
                 }
@@ -108,6 +131,10 @@ public class CharacterActions : MonoBehaviour {
             }
             else // Human players:
             {
+                /*Vector2 currentPosition = new Vector2((int)transform.position.x + 8, Mathf.Abs((int)transform.position.z) - 1);
+                
+                enemyBaseFinder.GetComplexPath((int)currentPosition.x, (int)currentPosition.y, 15, 15, this.transform); // Curent position, enemyFlagPosition, playertransform.*/
+
                 if (playerNumber == 0)
                 {
                     if (Input.GetKey(KeyCode.W))
@@ -211,7 +238,7 @@ public class CharacterActions : MonoBehaviour {
         // Set up an IEnumerator which checks every half second for a total of 3 seconds if player is colliding, and a bool isColliding that is set true here, and false in OnTriggerExit
         // If not colliding all the time, stop checking for more, if entering collision again, set up IEnumerator again.
         //TODO if colliding with own flag, if noone is holding it - then put back to base after staying on it for few seconds.
-        //FUTURE: Add another input to network: "Is our flag on the ground(not in base)?" && "Am I standing on our flag?"
+        //TODO FUTURE: Add another input to network: "Is our flag on the ground(not in base)?" && "Am I standing on our flag?"
         if (myTeam == "Red")
         {
 
@@ -224,6 +251,15 @@ public class CharacterActions : MonoBehaviour {
             // Pickup flag:
             if (other.gameObject.tag == "Blue")
             {
+                // As long as someone else is holding the flag, you can't pick it up.
+                if (other.gameObject.transform.parent == null)
+                {
+                    Debug.Log("someone is holding flag.");
+                }
+                // Reset paths:
+                enemyBaseFinder = new PathFinder();
+                friendlyBaseFinder = new PathFinder();
+
                 PickupFlag(other.gameObject);
             }
 
@@ -237,6 +273,9 @@ public class CharacterActions : MonoBehaviour {
                     flag.transform.position = bluePosition;
                     flag.transform.parent = null;
                     isHoldingFlag = false;
+                    // Reset paths:
+                    enemyBaseFinder = new PathFinder();
+                    friendlyBaseFinder = new PathFinder();
                 } catch
                 {
                     //Don't do anything.
@@ -252,12 +291,17 @@ public class CharacterActions : MonoBehaviour {
             if (other.gameObject.tag == "Blue")
             {
                 other.gameObject.transform.position = bluePosition;
+                // Reset paths:
+                enemyBaseFinder = new PathFinder();
+                friendlyBaseFinder = new PathFinder();
             }
 
             // Pickup flag:
             if (other.gameObject.tag == "Red")
             {
                 PickupFlag(other.gameObject);
+                // Reset paths:
+                friendlyBaseFinder = new PathFinder();
             }
 
             // Put flag in base:
@@ -269,6 +313,10 @@ public class CharacterActions : MonoBehaviour {
                     flag.transform.position = redPosition;
                     flag.transform.parent = null;
                     isHoldingFlag = false;
+
+                    // Reset paths:
+                    enemyBaseFinder = new PathFinder();
+                    friendlyBaseFinder = new PathFinder();
                 }
                 catch
                 {
@@ -307,6 +355,9 @@ public class CharacterActions : MonoBehaviour {
 
     void PickupFlag(GameObject flag) // Set yourself as parent to flag.
     {
+        enemyBaseFinder = new PathFinder();
+        friendlyBaseFinder = new PathFinder();
+
         isHoldingFlag = true;
         flag.transform.SetParent(this.gameObject.transform);
         flag.transform.position = this.gameObject.transform.position + 0.5f * this.gameObject.transform.right + 0.5f * this.gameObject.transform.up;
@@ -341,6 +392,7 @@ public class CharacterActions : MonoBehaviour {
     public void KillPlayer()
     {
         DropFlag(); // If player is holding flag, then drop it on the ground.
+        
 
         // Remove player from map, and respawn later:
         GameObject go = this.gameObject.transform.Find("Cube").gameObject;
@@ -348,6 +400,7 @@ public class CharacterActions : MonoBehaviour {
         IEnumerator coroutine;
         coroutine = Respawn();
         StartCoroutine(coroutine);
+
     }
 
     IEnumerator Respawn()
@@ -364,6 +417,9 @@ public class CharacterActions : MonoBehaviour {
         isDead = false;
         this.gameObject.transform.position = startPosition;
         this.gameObject.transform.rotation = Quaternion.identity;
+
+        enemyBaseFinder = new PathFinder();
+        friendlyBaseFinder = new PathFinder();
     }
 
     public void setHuman(Vector3 position, int playerNr) // Sets character this script is runned on as human.

@@ -2,27 +2,26 @@
 using System.IO;
 using UnityEngine;
 
-/// <summary>
-/// Simple MLP Neural Network
-/// </summary>
+//TODO make own comments for this whole file.
+//TODO talk about modularity, make it more modular.......
+
+// Simple Neural Network used for AI in a simple capture the flag game.
+// The network can be used as is in different games as well, with a few functions extra for visualization stuff.
 public class NeuralNetwork
 {
 
     int[] layer; //layer information
     Layer[] layers; //layers in the network
-
-    /// <summary>
-    /// Constructor setting up layers
-    /// </summary>
-    /// <param name="layer">Layers of this network</param>
+    
+    // Constructor, set values:
     public NeuralNetwork(int[] layer)
     {
-        //deep copy layers
+        // Deep copy layers
         this.layer = new int[layer.Length];
         for (int i = 0; i < layer.Length; i++)
             this.layer[i] = layer[i];
 
-        //creates neural layers
+        // Create neural layers
         layers = new Layer[layer.Length - 1];
 
         for (int i = 0; i < layers.Length; i++)
@@ -31,18 +30,20 @@ public class NeuralNetwork
         }
     }
 
+    // Used for sending input, getting output for AI to make moves in the game.
     public float[] Run(float[] inputs)
     {
         return FeedForward(inputs);
     }
 
+    // Used to train up the network.
     public void Train(float[] inputs, float[] outputs)
     {
         FeedForward(inputs);
         BackProp(outputs);
     }
 
-    public float[,,] GetWeights()   // For visualization.
+    public float[,,] GetWeights()   // Used for visualization of weights in the network.
     {
         float[,,] returnValue = new float[layer.Length - 1,25,25]; // Set some max values.
         
@@ -62,6 +63,7 @@ public class NeuralNetwork
     }
     
 
+    // Saves the weights of the network in files. TODO: maybe use 1 file and make several layers inside there?..
     public void SaveBrain()
     {
         
@@ -74,7 +76,7 @@ public class NeuralNetwork
         StreamWriter layer2Writer = new StreamWriter(layer2Path, false);
         StreamWriter layer3Writer = new StreamWriter(layer3Path, false);
 
-        
+        // Goes through each of the files:
         for (int i = 0; i < layers[0].weights.GetLength(0); i++)
         {
             for (int j = 0; j < layers[0].weights.GetLength(1); j++)
@@ -107,9 +109,9 @@ public class NeuralNetwork
 
         Debug.Log("Saved Brain!");
     }
-    //TODO remove a lot of comments from this code, I need to know what is going on here and must therefore make my own comments.
 
-    public void LoadBrain() // Loads weights from a file:
+    // Loads weights from a file:
+    public void LoadBrain()
     {
         Debug.Log("Loading brain!");
         string layer1Path = "Assets/Resources/layer-1.txt";
@@ -159,6 +161,7 @@ public class NeuralNetwork
         reader3.Close();
     }
 
+    // Function used for visualization of network nodes:
     public void FeedForwardVisualize(float[] inputs)
     {
         GameObject visualizerObject = GameObject.Find("Visualize Camera").gameObject;
@@ -166,6 +169,7 @@ public class NeuralNetwork
         // Colorize nodes in all layers:
         visualizerObject.GetComponent<NetworkVisualization>().SetNodeColors(0, inputs);
         visualizerObject.GetComponent<NetworkVisualization>().SetNodeColors(1, layers[0].FeedForward(inputs));
+        // TODO make it more modular by having a for loop of length of network by amount of layers:
         visualizerObject.GetComponent<NetworkVisualization>().SetNodeColors(2, layers[1].FeedForward(layers[0].outputs));
         visualizerObject.GetComponent<NetworkVisualization>().SetNodeColors(3, layers[2].FeedForward(layers[1].outputs));
     }
@@ -174,7 +178,7 @@ public class NeuralNetwork
     // Feeds input forward in the network:
     public float[] FeedForward(float[] inputs)
     {
-        //feed forward
+        // TODO remove output here. not used anymore.
         float[] output = layers[0].FeedForward(inputs);
 
         for (int i = 1; i < layers.Length; i++)
@@ -189,55 +193,52 @@ public class NeuralNetwork
     // Feeds expected output backwards in the network:
     public void BackProp(float[] expected)
     {
-        // run over all layers backwards
+        // Run over all layers backwards
         for (int i = layers.Length - 1; i >= 0; i--)
         {
             if (i == layers.Length - 1)
             {
-                layers[i].BackPropOutput(expected); //back prop output
+                // Propagate output layer.
+                layers[i].BackPropOutput(expected);
             }
             else
             {
-                layers[i].BackPropHidden(layers[i + 1].gamma, layers[i + 1].weights); //back prop hidden
+                // Propagate hidden layer.
+                layers[i].BackPropHidden(layers[i + 1].gamma, layers[i + 1].weights);
             }
         }
 
-        //Update weights
+        // Update weights
         for (int i = 0; i < layers.Length; i++)
         {
             layers[i].UpdateWeights();
         }
     }
-
-    /// <summary>
-    /// Each individual layer in the ML{
-    /// </summary>
+    
+    // Class for every layer in the network
     public class Layer
     {
-        int numberOfInputs; //# of neurons in the previous layer
-        int numberOfOuputs; //# of neurons in the current layer
+        int numberOfInputs; // # of neurons in the previous layer
+        int numberOfOuputs; // # of neurons in the current layer
 
 
-        public float[] outputs; //outputs of this layer
-        public float[] inputs; //inputs in into this layer
-        public float[,] weights; //weights of this layer
-        public float[,] weightsDelta; //deltas of this layer
-        public float[] gamma; //gamma of this layer
-        public float[] error; //error of the output layer
+        public float[] outputs;         // Outputs of this layer
+        public float[] inputs;          // Inputs in into this layer
+        public float[,] weights;        // Weights of this layer
+        public float[,] weightsDelta;   // Deltas of this layer
+        public float[] gamma;           // Gamma of this layer
+        public float[] error;           // Error of the output layer
 
         public static System.Random random = new System.Random(); //Static random class variable
+        
 
-        /// <summary>
-        /// Constructor initilizes vaiour data structures
-        /// </summary>
-        /// <param name="numberOfInputs">Number of neurons in the previous layer</param>
-        /// <param name="numberOfOuputs">Number of neurons in the current layer</param>
+        // Constructor
         public Layer(int numberOfInputs, int numberOfOuputs)
         {
             this.numberOfInputs = numberOfInputs;
             this.numberOfOuputs = numberOfOuputs;
 
-            //initilize datastructures
+            // Initilize datastructures
             outputs = new float[numberOfOuputs];
             inputs = new float[numberOfInputs];
             weights = new float[numberOfOuputs, numberOfInputs];
@@ -247,10 +248,8 @@ public class NeuralNetwork
 
             InitilizeWeights(); //initilize weights
         }
-
-        /// <summary>
-        /// Initilize weights between -0.5 and 0.5
-        /// </summary>
+        
+        // Initalize weights between -0.5 and 0.5.
         public void InitilizeWeights()
         {
             for (int i = 0; i < numberOfOuputs; i++)
@@ -261,12 +260,9 @@ public class NeuralNetwork
                 }
             }
         }
+        
 
-        /// <summary>
-        /// Feedforward this layer with a given input
-        /// </summary>
-        /// <param name="inputs">The output values of the previous layer</param>
-        /// <returns></returns>
+        // Feedforward within each layer:
         public float[] FeedForward(float[] inputs)
         {
             this.inputs = inputs;// keep copy which can be used for back propagation
@@ -285,32 +281,25 @@ public class NeuralNetwork
 
             return outputs;
         }
-
-        /// <summary>
-        /// TanH derivate 
-        /// </summary>
-        /// <param name="value">An already computed TanH value</param>
-        /// <returns></returns>
+        
+        // TanH derivate.
         public float TanHDer(float value)
         {
             return 1 - (value * value);
         }
-
-        /// <summary>
-        /// Back propagation for the output layer
-        /// </summary>
-        /// <param name="expected">The expected output</param>
+        
+        // Backpropagate the expected output to train output layer:
         public void BackPropOutput(float[] expected)
         {
-            //Error dervative of the cost function
+            // Error dervative of the cost function.
             for (int i = 0; i < numberOfOuputs; i++)
                 error[i] = outputs[i] - expected[i];
 
-            //Gamma calculation
+            // Gamma calculation.
             for (int i = 0; i < numberOfOuputs; i++)
                 gamma[i] = error[i] * TanHDer(outputs[i]);
 
-            //Caluclating detla weights
+            // Caluclating detla weights.
             for (int i = 0; i < numberOfOuputs; i++)
             {
                 for (int j = 0; j < numberOfInputs; j++)
@@ -319,15 +308,12 @@ public class NeuralNetwork
                 }
             }
         }
+        
 
-        /// <summary>
-        /// Back propagation for the hidden layers
-        /// </summary>
-        /// <param name="gammaForward">the gamma value of the forward layer</param>
-        /// <param name="weightsFoward">the weights of the forward layer</param>
+        // Backpropagate the expected output to train hidden layer:
         public void BackPropHidden(float[] gammaForward, float[,] weightsFoward)
         {
-            //Caluclate new gamma using gamma sums of the forward layer
+            // Caluclate new gamma using gamma sums of the forward layer.
             for (int i = 0; i < numberOfOuputs; i++)
             {
                 gamma[i] = 0;
@@ -340,7 +326,7 @@ public class NeuralNetwork
                 gamma[i] *= TanHDer(outputs[i]);
             }
 
-            //Caluclating detla weights
+            // Caluclating detla weights.
             for (int i = 0; i < numberOfOuputs; i++)
             {
                 for (int j = 0; j < numberOfInputs; j++)
@@ -349,17 +335,15 @@ public class NeuralNetwork
                 }
             }
         }
-
-        /// <summary>
-        /// Updating weights
-        /// </summary>
+        
+        // Update weight value of every dendrite:
         public void UpdateWeights()
         {
             for (int i = 0; i < numberOfOuputs; i++)
             {
                 for (int j = 0; j < numberOfInputs; j++)
                 {
-                    weights[i, j] -= weightsDelta[i, j] * 0.033f;
+                    weights[i, j] -= weightsDelta[i, j] * 0.033f;   // Update with delta and TR.
                 }
             }
         }

@@ -22,6 +22,9 @@ public class RandomizeMap : MonoBehaviour {
     public Text leftTeamHuman;
     public Text rightTeamHuman;
 
+    // Contains positions of randomly spawned blocks, to know where the blocks are. Could do it differently, but for now better to not make it too complex.
+    public int[,] walls;  //18, 17
+
     private bool rotationFinish;
     private bool startingGame;
     private Quaternion newRotation;
@@ -69,8 +72,9 @@ public class RandomizeMap : MonoBehaviour {
         }
     }
 
-    private void Start()
+    void Start()
     {
+        walls = new int[18,17];
         rotationFinish = false;
         startingGame = false;
         GameObject camera = GameObject.Find("Main Camera").gameObject;
@@ -149,24 +153,7 @@ public class RandomizeMap : MonoBehaviour {
             lineNr++;
         }
         
-
-        /*
-        for (int j = 0; j < (lineNr/2); j++)
-        {
-            Debug.Log("input" + input[j][0]);
-            Debug.Log("input" + input[j][1]);
-            Debug.Log("input" + input[j][2]);
-            Debug.Log("input" + input[j][3]);
-            Debug.Log("input" + input[j][4]);
-            Debug.Log("input" + input[j][5]);
-            Debug.Log("input" + input[j][6]);
-            Debug.Log("output" + output[j][0]);
-            Debug.Log("output" + output[j][1]);
-            Debug.Log("output" + output[j][2]);
-            Debug.Log("output" + output[j][3]);
-        }*/
-
-
+        
 
         NeuralNetwork net = new NeuralNetwork(new int[] { 8, 25, 25, 4 }); // initialize network
         
@@ -187,11 +174,9 @@ public class RandomizeMap : MonoBehaviour {
         Debug.Log(outputt[2]);
         Debug.Log(outputt[3]);
         
-    
         // Save the training values:
         net.SaveBrain();
         net.LoadBrain();
-
     }
 
     public void randomize() // Run this when creating a game to make a new layout for the map:
@@ -204,12 +189,12 @@ public class RandomizeMap : MonoBehaviour {
         {
             // Delete last games blocks:
             deleteBlocks();
-
-            // Disable Canvas.
+            
             for (int x = 0; x < 18; x++)
             {
                 for (int z = 0; z < 17; z++)
                 {
+                    walls[x,z] = 0;    // Set all values.
                     if (x > 4 || z > 4) // Not left base
                     {
                         if (x < 14 || z < 12) // Not right base
@@ -217,14 +202,16 @@ public class RandomizeMap : MonoBehaviour {
                             // Set random map 
                             if (Random.Range(1, 100) <= blockPercentage)
                             {
-                                // Some weird values to give correct position according to the map:     (should probably get size of map dynamicly, but for now this is good enough.)
-                                // Random.Range(-9, 9) - x        Random.Range(-19, -1) - z
+                                // Acknowledge a position has wall placed on it.
+                                walls[x,z] = 1;
+                                // Some weird values to give correct position according to the map:
                                 Instantiate(block, new Vector3(-9 + x, 1.75f, -1 + -1 * z), Quaternion.identity);
                             }
                         }
                     }
                 }
             }
+            
 
             // Get player(s)/AI(s):
             var t = getPlayers();   //LeftTeamAI, rightTeamAI, leftTeamHuman, rightTeamHuman.
@@ -235,9 +222,9 @@ public class RandomizeMap : MonoBehaviour {
             // Red Team:
             int redTeam = 0;    // Count positions in team used up.
             ArrayList redTeamPlayerPositions = new ArrayList();
-            redTeamPlayerPositions.Add(new Vector3(-6, 2, -4));
-            redTeamPlayerPositions.Add(new Vector3(-6, 2, -2));
-            redTeamPlayerPositions.Add(new Vector3(-8, 2, -4));
+            redTeamPlayerPositions.Add(new Vector3(-6f, 2, -4));
+            redTeamPlayerPositions.Add(new Vector3(-6f, 2, -2));
+            redTeamPlayerPositions.Add(new Vector3(-8f, 2, -4));
 
             for (int i = 0; i < t[0]; i++)   
             {

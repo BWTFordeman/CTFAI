@@ -42,6 +42,8 @@ public class FieldOfView : MonoBehaviour {
 
     public int IsEnemyWithinFieldOfView() // Returns 0 if no enemies, 1 if enemies.
     {
+        findVisibleTargets();
+
         if (visibleTargets.Count > 0)
         {
             return 1;
@@ -64,10 +66,14 @@ public class FieldOfView : MonoBehaviour {
             
             if (angle > 0)
             {
-                return 1;   // go right
+                return 0;   // rotate left.
+            }
+            else
+            {
+                return 1;   // rotate right.
             }
         }
-        return 0;   //No enemies, or go left.
+        return 0;   // No enemies
     }
 
     public int IsLookingStraightAtEnemy(Transform playerTransform) // Returns 0 if not looking straight at enemy, 1 if doing so.

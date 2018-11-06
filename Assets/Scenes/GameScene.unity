@@ -3534,7 +3534,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   block: {fileID: 1158598345705016, guid: 0c9aeeff6d4c87e4c951a8c70039ceda, type: 2}
-  blockPercentage: 0
+  blockPercentage: 25
   trainGenerations: 1000
   redPlayer: {fileID: 1502771270298740, guid: 979d3f72967322f4da4bc121d9299f44, type: 2}
   bluePlayer: {fileID: 1034272595281054, guid: ba141793e0160a449bd4cfb9b9f2a3a4, type: 2}

@@ -57,7 +57,7 @@ GameObject:
   - component: {fileID: 4023610422051864}
   - component: {fileID: 33411713451913830}
   - component: {fileID: 23334420271414796}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: View Visualization
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -102,7 +102,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1034272595281054}
   m_LocalRotation: {x: -0, y: 0.91807413, z: -0, w: 0.39640886}
-  m_LocalPosition: {x: 4.196786, y: 1.84, z: -5.8775992}
+  m_LocalPosition: {x: 1.4664325, y: 1.25, z: -13.39}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4229833301293394}
@@ -345,5 +345,5 @@ MonoBehaviour:
   bulletPrefab: {fileID: 1492413236086144, guid: 3e07029c52980ce4d866514e0dc99fd2,
     type: 2}
   myTeam: Blue
-  rotateSpeed: 30
+  rotateSpeed: 35
   movSpeed: 7
