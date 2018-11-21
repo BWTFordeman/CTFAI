@@ -92,8 +92,8 @@ public class PathFinder
         int angle = (Vector3.SignedAngle(goalDirection, forwardDirectionTest, Vector3.up) > 0)? 1 : 0;
 
         //Debug.Log("Angle:" + angle);
-        Debug.Log("goalDirection:" + goalDirection.x + " " + goalDirection.z);                    
-        Debug.Log("forward:" + playerTransform.forward.x + " " + (playerTransform.forward.z * -1));
+        //Debug.Log("goalDirection:" + goalDirection.x + " " + goalDirection.z);                    
+        //Debug.Log("forward:" + playerTransform.forward.x + " " + (playerTransform.forward.z * -1));
       
         for (int i = 0; i < enemyBasePath.GetLength(0); i++)
         {

@@ -74,6 +74,7 @@ public class RandomizeMap : MonoBehaviour {
 
     void Start()
     {
+        QualitySettings.vSyncCount = 0;
         walls = new int[18,17];
         rotationFinish = false;
         startingGame = false;

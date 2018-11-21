@@ -5,10 +5,6 @@ using UnityEngine;
 [System.Serializable]
 public class CharacterActions : MonoBehaviour {
     //TODO implement so that your goal is enemy with your flag if they have it and your teammate has their flag.
-    
-    //TODO set path to enemy base every time something big happens.
-
-    // TODO make random chance of AI shooting when output value is 1. So that one of the 2 in combat will win hopefully.
 
     public MeshRenderer meshRenderer;
 
@@ -18,7 +14,7 @@ public class CharacterActions : MonoBehaviour {
     public int rotateSpeed;
     public float movSpeed;
 
-    // Privates.
+    // Privates:
     private readonly double shootDelay = 1.0f;
     private double nextBulletShotTime = 0.0f;
     private int playerNumber;
@@ -106,8 +102,8 @@ public class CharacterActions : MonoBehaviour {
                 
                 float[] output = nn.Run(input);
 
-                Debug.Log("Input: " + input[0] + " " + input[1] + " " + input[2] + " " + input[3] + " " + input[4] + " " + input[5] + " " + input[6] + " " + input[7]);
-                Debug.Log("output: " + output[0] + " " + output[1] + " " + output[2] + " " + output[3]);
+                //Debug.Log("Input: " + input[0] + " " + input[1] + " " + input[2] + " " + input[3] + " " + input[4] + " " + input[5] + " " + input[6] + " " + input[7]);
+                //Debug.Log("output: " + output[0] + " " + output[1] + " " + output[2] + " " + output[3]);
                 
 
                 // Output functions:
@@ -131,9 +127,6 @@ public class CharacterActions : MonoBehaviour {
             }
             else // Human players:
             {
-                /*Vector2 currentPosition = new Vector2((int)transform.position.x + 8, Mathf.Abs((int)transform.position.z) - 1);
-                
-                enemyBaseFinder.GetComplexPath((int)currentPosition.x, (int)currentPosition.y, 15, 15, this.transform); // Curent position, enemyFlagPosition, playertransform.*/
 
                 if (playerNumber == 0)
                 {
@@ -234,7 +227,6 @@ public class CharacterActions : MonoBehaviour {
 
     void OnTriggerEnter(Collider other)
     {
-        //TODO Right now just make it instantly jump back to base if colliding with it.
         // Set up an IEnumerator which checks every half second for a total of 3 seconds if player is colliding, and a bool isColliding that is set true here, and false in OnTriggerExit
         // If not colliding all the time, stop checking for more, if entering collision again, set up IEnumerator again.
         //TODO if colliding with own flag, if noone is holding it - then put back to base after staying on it for few seconds.
@@ -245,7 +237,11 @@ public class CharacterActions : MonoBehaviour {
             // Retrieve own flag: TODO do differently later on.
             if (other.gameObject.tag == "Red")
             {
-                other.gameObject.transform.position = redPosition;
+                // You can not pickup your flag if someone else is holding it.
+                if (other.gameObject.transform.parent == null)
+                {
+                    other.gameObject.transform.position = redPosition;
+                }
             }
 
             // Pickup flag:
@@ -254,13 +250,12 @@ public class CharacterActions : MonoBehaviour {
                 // As long as someone else is holding the flag, you can't pick it up.
                 if (other.gameObject.transform.parent == null)
                 {
-                    Debug.Log("someone is holding flag.");
-                }
-                // Reset paths:
-                enemyBaseFinder = new PathFinder();
-                friendlyBaseFinder = new PathFinder();
+                    // Reset paths:
+                    enemyBaseFinder = new PathFinder();
+                    friendlyBaseFinder = new PathFinder();
 
-                PickupFlag(other.gameObject);
+                    PickupFlag(other.gameObject);
+                }
             }
 
             // Put flag in base:
@@ -290,18 +285,28 @@ public class CharacterActions : MonoBehaviour {
             // Retrieve own flag: TODO do differently later on.
             if (other.gameObject.tag == "Blue")
             {
-                other.gameObject.transform.position = bluePosition;
-                // Reset paths:
-                enemyBaseFinder = new PathFinder();
-                friendlyBaseFinder = new PathFinder();
+                // You can not pickup your flag if someone else is holding it.
+                if (other.gameObject.transform.parent == null)
+                {
+                    other.gameObject.transform.position = bluePosition;
+                    // Reset paths:
+                    enemyBaseFinder = new PathFinder();
+                    friendlyBaseFinder = new PathFinder();
+                }
             }
 
             // Pickup flag:
             if (other.gameObject.tag == "Red")
             {
-                PickupFlag(other.gameObject);
-                // Reset paths:
-                friendlyBaseFinder = new PathFinder();
+                // As long as someone else is holding the flag, you can't pick it up.
+                if (other.gameObject.transform.parent == null)
+                {
+                    // Reset paths:
+                    enemyBaseFinder = new PathFinder();
+                    friendlyBaseFinder = new PathFinder();
+
+                    PickupFlag(other.gameObject);
+                }
             }
 
             // Put flag in base:
@@ -365,12 +370,12 @@ public class CharacterActions : MonoBehaviour {
 
     public void move()
     {
-        transform.position += transform.forward * 0.01f * movSpeed;
+        transform.position += transform.forward * movSpeed * Time.deltaTime * 0.40f;
     }
 
     public void rotate(float angleAmount)
     {
-        transform.Rotate(Vector3.down * angleAmount * rotateSpeed);
+        transform.Rotate(Vector3.down * angleAmount * rotateSpeed * Time.deltaTime * 50);
     }
 
     public void ShootBullet()   // Shoots a bullet from players position and direction forward. TODO
