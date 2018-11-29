@@ -2,14 +2,10 @@
 using System.IO;
 using UnityEngine;
 
-//TODO make own comments for this whole file.
-//TODO talk about modularity, make it more modular.......
-
-// Simple Neural Network used for AI in a simple capture the flag game.
-// The network can be used as is in different games as well, with a few functions extra for visualization stuff.
+// Simple Neural Network used for AI in a simple capture the flag game, I added some extra functionality for visualization and saving/loading the brain into textfiles.
+// so you won't have to train your network before every game.
 public class NeuralNetwork
 {
-
     int[] layer; //layer information
     Layer[] layers; //layers in the network
     
@@ -35,13 +31,7 @@ public class NeuralNetwork
     {
         return FeedForward(inputs);
     }
-
-    // Used to train up the network.
-    public void Train(float[] inputs, float[] outputs)
-    {
-        FeedForward(inputs);
-        BackProp(outputs);
-    }
+    
 
     public float[,,] GetWeights()   // Used for visualization of weights in the network.
     {

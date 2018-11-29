@@ -5,7 +5,7 @@ using UnityEngine;
 public class PathFinder
 {
     public Vector3 goalPosition;               
-    public uint[,] enemyBasePath; // Path to enemies base. TODO find path to enemy base first, then find path to friendly base, then to enemy with flag.
+    public uint[,] enemyBasePath; // Path to enemies base.
 
     private Node currentPlayerNode;  // Node that contains node player is on/is going to.
 
@@ -26,11 +26,9 @@ public class PathFinder
 
         return (Vector3.Angle(goalDirection, lookDirection) < 10) ? 1 : 0;
     }
+    
 
-    //TODO, when there is enemy within field of view an amount to the right then the player won't rotate to that point.
-
-
-    //Each path has startPosition at goal position, and end position at playerPosition
+    
 
 
     //TODO, make several paths to goal,
@@ -92,7 +90,7 @@ public class PathFinder
         int angle = (Vector3.SignedAngle(goalDirection, forwardDirectionTest, Vector3.up) > 0)? 1 : 0;
 
         //Debug.Log("Angle:" + angle);
-        //Debug.Log("goalDirection:" + goalDirection.x + " " + goalDirection.z);                    
+        Debug.Log("goalDirection:" + goalDirection.x + " " + goalDirection.z);                    
         //Debug.Log("forward:" + playerTransform.forward.x + " " + (playerTransform.forward.z * -1));
       
         for (int i = 0; i < enemyBasePath.GetLength(0); i++)
@@ -107,7 +105,7 @@ public class PathFinder
     // Is run every time player reach a partGoal of a path:         F.ex: from 0,0 to 2,1 a partGoal could be 1,0 or 0,1.
     public void UpdateGoal()
     {
-        Debug.Log("updating goal");
+        //Debug.Log("updating goal");
         bool updated = false;
         if (goalPosition.x > 0) //TODO when player reached final goal, enemyBasePath[(int)goalPosition.x - 1,(int)goalPosition.z] will be 4. then just run in circles until new path is made.(at same time actually...)
         {
@@ -189,6 +187,7 @@ public class PathFinder
     // Set next node in path:
     public void getNextNode()
     {
+        enemyBasePath[(int)currentPlayerNode.positionZ, (int)currentPlayerNode.positionX] = 3;
         while (currentPlayerNode.parent != null)
         { 
             Node tempNode = currentPlayerNode;
@@ -212,7 +211,7 @@ public class PathFinder
                 enemyBasePath[(int)positionZ, (int)positionX] = 1;
 
                 Node tempNode = new Node(parent, positionX, positionZ, distanceToThisNode, goalPosition.x, goalPosition.z);  // Create new node that could be a part of the shortest path.
-                Debug.Log("creating node:" + positionX + " " + positionZ);
+                //Debug.Log("creating node:" + positionX + " " + positionZ);
 
                 checkedList.Add(tempNode);    // Add node to list before sorting it to right position.
                 checkedList.Sort((x1, x2) => x1.totalDistance.CompareTo(x2.totalDistance));
@@ -227,7 +226,7 @@ public class PathFinder
             }
         } catch
         {
-            Debug.Log("x" + positionX + " z " + positionZ);
+            //Debug.Log("x" + positionX + " z " + positionZ);
         }
     }
 
@@ -258,13 +257,13 @@ public class PathFinder
         // Set goal:
         enemyBasePath[(int)goalPosition.z,(int)goalPosition.x] = 4;
         // Set start:
-        Debug.Log("x: " + startX + " z: " + startZ);
+        //Debug.Log("x: " + startX + " z: " + startZ);
         enemyBasePath[startX,startZ] = 5;
 
         // Add start to list:
         Node startNode = new Node(null, startZ, startX, 0, goalPosition.x, goalPosition.z); // Starting point will always start with g(n) = 0.
-        Debug.Log("start" + startX + " " + startZ);
-        Debug.Log("goal" + goalPosition.x + " " + goalPosition.z);
+        //Debug.Log("start" + startX + " " + startZ);
+        //Debug.Log("goal" + goalPosition.x + " " + goalPosition.z);
         checkedList.Add(startNode);
     }
 
@@ -281,7 +280,6 @@ public class PathFinder
         public float totalDistance;
     
         // Constructor:
-        //TODO remove goalPosition in here and use global: Vector3 goalPosition.
         public Node(Node p, float posX, float posZ, float distToNode, float goalPositionX, float goalPositionZ)
         {
             parent = p;

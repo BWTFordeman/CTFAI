@@ -19,8 +19,8 @@ public class FieldOfView : MonoBehaviour {
     [HideInInspector]
     public List<Transform> visibleTargets = new List<Transform>();  // Contains a list of targets within the view of the character at current time.
 
-    public float meshResolution;        // For Visualization inside actual game, not only editor.
-    public int edgeResolveIterations;    // Amount of iterations for finding edge of raycasting to obstacles. less is more optimal.
+    public float meshResolution;            // For Visualization inside actual game, not only editor.
+    public int edgeResolveIterations;       // Amount of iterations for finding edge of raycasting to obstacles. less is more optimal.
     public float edgeDistanceThreshold;     // Threshold for distance between two raycasts colliding with different objects.
 
     public MeshFilter viewMeshFilter;
@@ -36,8 +36,6 @@ public class FieldOfView : MonoBehaviour {
         {
             meshRenderer.enabled = false;
         }
-
-        // visibleTargets contain transforms of enemies within eyesight.
     }
 
     public int IsEnemyWithinFieldOfView() // Returns 0 if no enemies, 1 if enemies.
@@ -87,8 +85,7 @@ public class FieldOfView : MonoBehaviour {
             Vector3 vectorToEnemy = new Vector3(visibleTargets[0].position.x - playerTransform.position.x, visibleTargets[0].position.y - playerTransform.position.y, visibleTargets[0].position.z - playerTransform.position.z);
 
             float angle = Vector3.Angle(vectorToEnemy, playerTransform.forward);
-
-            Debug.Log("angle:" + angle);
+            
             if (angle < 5)
             {
                 return 1;

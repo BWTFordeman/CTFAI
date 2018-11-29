@@ -34,16 +34,18 @@ public class NetworkVisualization : MonoBehaviour {
         nn.LoadBrain();
 
 
-        // Get nodes in visualization:
+        // Get nodes in visualization:      //TODO MAKE nodes instead of getting them...
         for (int i = 0; i < layer1Nodes.Length; i++)
         {
             if (i == 0)
             {
                 layer1Nodes[i] = Canvas.transform.Find("InputLayer").gameObject.transform.Find("Node").gameObject;
+                
             }
             else
             {
                 layer1Nodes[i] = Canvas.transform.Find("InputLayer").gameObject.transform.Find("Node (" + i + ")").gameObject;
+                
             }
         }
         for (int i = 0; i < layer2Nodes.Length; i++)
@@ -52,11 +54,13 @@ public class NetworkVisualization : MonoBehaviour {
             {
                 layer2Nodes[i] = Canvas.transform.Find("HiddenLayer1").gameObject.transform.Find("Node").gameObject;
                 layer3Nodes[i] = Canvas.transform.Find("HiddenLayer2").gameObject.transform.Find("Node").gameObject;
+                
             }
             else
             {
                 layer2Nodes[i] = Canvas.transform.Find("HiddenLayer1").gameObject.transform.Find("Node (" + i + ")").gameObject;
                 layer3Nodes[i] = Canvas.transform.Find("HiddenLayer2").gameObject.transform.Find("Node (" + i + ")").gameObject;
+                
             }
         }
         for (int i = 0; i < layer4Nodes.Length; i++)
@@ -64,10 +68,12 @@ public class NetworkVisualization : MonoBehaviour {
             if (i == 0)
             {
                 layer4Nodes[i] = Canvas.transform.Find("OutputLayer").gameObject.transform.Find("Node").gameObject;
+                
             }
             else
             {
                 layer4Nodes[i] = Canvas.transform.Find("OutputLayer").gameObject.transform.Find("Node (" + i + ")").gameObject;
+                
             }
         }
         
@@ -96,6 +102,10 @@ public class NetworkVisualization : MonoBehaviour {
                 tempScale.z = 0;
                 tempScale.z += (2.0f * distance);
                 firstLayer[dendriteNr].transform.localScale = tempScale;
+
+                /*// I don't need shadows, so turning it off makes the game more efficient.
+                firstLayer[dendriteNr].GetComponent<Renderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                firstLayer[dendriteNr].GetComponent<Renderer>().receiveShadows = false;*/
             }
         }
 
