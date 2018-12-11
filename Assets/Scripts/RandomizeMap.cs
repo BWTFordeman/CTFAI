@@ -156,8 +156,8 @@ public class RandomizeMap : MonoBehaviour {
         
         
 
-        NeuralNetwork net = new NeuralNetwork(new int[] { 8, 25, 25, 4 }); // initialize network
-        
+        NeuralNetwork net = new NeuralNetwork(new int[] { 10, 25, 25, 4 }); // initialize network
+
         for (int i = 0; i < trainGenerations; i++)
         {
             for (int j = 0; j < (lineNr/2); j++)
@@ -167,14 +167,32 @@ public class RandomizeMap : MonoBehaviour {
             }
         }
 
-        
-        // Testing the network:
-        float[] outputt = net.FeedForward(new float[] { 1, 1, 1, 1, 1, 1, 1, 1 }); //should give 0 0 0 1
-        Debug.Log(outputt[0]);
-        Debug.Log(outputt[1]);
-        Debug.Log(outputt[2]);
-        Debug.Log(outputt[3]);
-        
+
+        // Used to see the accuracy of the network:
+        float accuracy = 0;
+
+        for (int i = 0; i < trainGenerations; i++)
+        {
+            for (int j = 0; j < (lineNr / 2); j++)
+            {
+                float[] outputTest = net.FeedForward(input[j]);
+                for (int k = 0; k < 4; k++)
+                {
+                    if (output[j][k] == 1)  // Supposed to be 1.
+                    {
+                        float newValue = outputTest[k] * 2 - 1; // Making value from 0.5-1 to 0-1.
+                        accuracy = (accuracy + newValue) / 2;
+                    }
+                    else    // Supposed to be 0.
+                    {
+                        float newValue = 1 - (outputTest[k] * 2);     // Making value from 0.5-0 to 0-1.
+                        accuracy = (accuracy + newValue) / 2;
+                    }
+                }
+            }
+        }
+        Debug.Log("Accuracy: " + accuracy);
+
         // Save the training values:
         net.SaveBrain();
         net.LoadBrain();

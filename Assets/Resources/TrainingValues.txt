@@ -1,15 +1,17 @@
 # Input:
 #
-# Just have a 1 as first at any time, this to make sure that when all inputs are 0 I can still get a output = 1.
-# I hold the enemy flag?
-# I am in my base?
-# I rotate left/right for path to enemy base?
-# I rotate left/right for path to my base?
-# Is an enemy within field of view?
-# Enemy left or right?
-# Am I looking directly at enemy?
+# 1 Just have a 1 as first at any time, this to make sure that when all inputs are 0 I can still get a output = 1.
+# 2 I hold the enemy flag?
+# 3 I am in my base?
+# 4 I rotate left/right for path to enemy base?
+# 5 Is enemy base forward?
+# 6 I rotate left/right for path to my base?
+# 7 Is ally base forward?
+# 8 Is an enemy within field of view?
+# 9 Enemy left or right?
+# 10 Am I looking directly at enemy?
 #
-# If teammate has enemy flag & Enemy has your teams flag, enemy with flag is next goal.(not implemented yet..........)TODO, needs a lot of work, will take later..
+# If teammate has enemy flag & Enemy has your teams flag, enemy with flag is next goal.(not implemented yet..........)
 # "Is our flag on the ground(not in base)?" && "Am I standing on our flag?" For when you killed enemy with flag. The above one should be implemented before this...
 #
 # Output:
@@ -20,68 +22,76 @@
 # Shoot
 #
 # Without enemies:
-1 0 0 0 0 0 0 0
+1 0 0 0 0 0 0 0 0 0
 1 1 0 0
-1 1 0 0 0 0 0 0
+1 0 0 0 1 0 0 0 0 0
+1 0 0 0
+1 1 0 0 0 0 0 0 0 0
 1 1 0 0
-1 0 1 0 0 0 0 0
+1 1 0 0 1 0 0 0 0 0
 1 1 0 0
-1 1 1 0 0 0 0 0
+1 1 0 0 1 0 1 0 0 0
+1 0 0 0
+1 0 1 0 0 0 0 0 0 0
 1 1 0 0
-1 1 0 0 1 0 0 0
-1 0 1 0
-1 0 0 0 1 0 0 0
+1 1 1 0 0 0 0 0 0 0
 1 1 0 0
-1 1 1 0 1 0 0 0
+1 1 0 0 0 1 0 0 0 0
 1 0 1 0
-1 0 0 1 0 0 0 0
-1 0 1 0
-1 1 0 1 0 0 0 0
+1 0 0 0 0 1 0 0 0 0
 1 1 0 0
-1 1 0 1 1 0 0 0
+1 1 1 0 0 1 0 0 0 0
 1 0 1 0
-1 0 0 1 1 0 0 0
+1 0 0 1 0 0 0 0 0 0
 1 0 1 0
-1 0 1 1 0 0 0 0
-1 0 1 0
-1 0 1 1 1 0 0 0
-1 0 1 0
-1 0 1 0 1 0 0 0
+1 1 0 1 0 0 0 0 0 0
 1 1 0 0
+1 1 0 1 0 1 0 0 0 0
+1 0 1 0
+1 0 0 1 0 1 0 0 0 0
+1 0 1 0
+1 0 1 1 0 0 0 0 0 0
+1 0 1 0
+1 0 1 1 0 1 0 0 0 0
+1 0 1 0
+1 0 1 0 0 1 0 0 0 0
+1 1 0 0
+1 0 1 0 1 1 0 0 0 0
+1 0 0 0
 # With enemies in field of view:(go for enemies)
-1 0 0 0 0 1 0 0
+1 0 0 0 0 0 0 1 0 0
 0 1 0 0
-1 0 0 0 1 1 0 0
+1 0 0 0 0 1 0 1 0 0
 0 1 0 0
-1 0 0 0 1 0 1 0
+1 0 0 0 0 1 0 0 1 0
 1 0 1 0
-1 0 0 1 0 1 0 0
+1 0 0 1 0 0 0 1 0 0
 0 1 0 0
-1 1 0 1 0 1 0 0
+1 1 0 1 0 0 0 1 0 0
 0 1 0 0
-1 1 0 1 1 1 0 0
+1 1 0 1 0 1 0 1 0 0
 0 1 0 0
-1 0 1 0 1 1 0 0
+1 0 1 0 0 1 0 1 0 0
 0 1 0 0
-1 0 0 0 0 1 1 0
+1 0 0 0 0 0 0 1 1 0
 0 0 1 0
-1 0 0 0 1 1 1 0
+1 0 0 0 0 1 0 1 1 0
 0 0 1 0
-1 1 1 1 1 1 1 0
+1 1 1 1 0 1 0 1 1 0
 0 0 1 0
-1 0 1 1 0 1 1 0
+1 0 1 1 0 0 0 1 1 0
 0 0 1 0
-1 1 0 0 1 1 0 1
+1 1 0 0 0 1 0 1 0 1
 0 0 0 1
-1 0 0 0 0 1 0 1
+1 0 0 0 0 0 0 1 0 1
 0 0 0 1
-1 0 1 0 0 1 0 1
+1 0 1 0 0 0 0 1 0 1
 0 0 0 1
-1 0 0 0 0 1 1 1
+1 0 0 0 0 0 0 1 1 1
 0 0 0 1
-1 0 0 1 0 1 1 1
+1 0 0 1 0 0 0 1 1 1
 0 0 0 1
-1 1 0 0 1 1 1 1
+1 1 0 0 0 1 0 1 1 1
 0 0 0 1
-1 1 1 1 1 1 1 1
+1 1 1 1 0 1 0 1 1 1
 0 0 0 1

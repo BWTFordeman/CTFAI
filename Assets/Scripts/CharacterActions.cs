@@ -4,7 +4,6 @@ using UnityEngine;
 
 [System.Serializable]
 public class CharacterActions : MonoBehaviour {
-    //TODO implement so that your goal is enemy with your flag if they have it and your teammate has their flag.
 
     public MeshRenderer meshRenderer;
 
@@ -34,7 +33,7 @@ public class CharacterActions : MonoBehaviour {
     PathFinder friendlyBaseFinder;
 
     // Network:
-    readonly NeuralNetwork nn = new NeuralNetwork(new int[] { 8, 25, 25, 4 });
+    readonly NeuralNetwork nn = new NeuralNetwork(new int[] { 10, 25, 25, 4 });
     
     
     void Start()
@@ -50,20 +49,25 @@ public class CharacterActions : MonoBehaviour {
         {
             if (isAI)   // Do actions of Network:
             {
-
-                // TODO set correct position of player when getting complex path:
+                
                 
                 Vector2 currentPosition = new Vector2((int)transform.position.x + 8, Mathf.Abs((int)transform.position.z) - 1);
 
                 int pathToEnemyBase = 0;        // Default left
+                int enemyBaseforward = 0;       // Is base straight forward.
+
                 int pathToMyBase = 0;           // Default left
-                
+                int allyBaseforward = 0;       // Is base straight forward.
+
 
                 if (myTeam == "Red")
                 {
                     // Complex version:
                     pathToEnemyBase = enemyBaseFinder.GetComplexPath((int)currentPosition.x, (int)currentPosition.y, 15, 15, this.transform); // Curent position, enemyFlagPosition, playertransform.
+                    enemyBaseFinder.IsLookingStraightAtGoal(this.transform);
+
                     pathToMyBase = friendlyBaseFinder.GetComplexPath((int)currentPosition.x, (int)currentPosition.y, 2, 1, this.transform); // Curent position, enemyFlagPosition, playertransform.
+                    allyBaseforward = friendlyBaseFinder.IsLookingStraightAtGoal(this.transform);
 
                     // Simple version:
                     //pathToEnemyBase = enemyBaseFinder.GetSimplePath(this.gameObject.transform.forward, this.transform.position, bluePosition);
@@ -81,7 +85,7 @@ public class CharacterActions : MonoBehaviour {
                 }
 
                 // Input to the brain of this player:
-                float[] input = new float[8];
+                float[] input = new float[10];
                 
                 input[0] = 1;
                 // I hold the enemy flag:
@@ -90,20 +94,24 @@ public class CharacterActions : MonoBehaviour {
                 input[2] = (isStandingInBase) ? 1 : 0;
                 // I rotate left/right for path to enemy base:
                 input[3] = pathToEnemyBase;
+                // Is enemy base straight forward:
+                input[4] = enemyBaseforward;
                 // I rotate left/right for path to my base:
-                input[4] = pathToMyBase;
+                input[5] = pathToMyBase;
+                // Is ally base straight forward:
+                input[6] = allyBaseforward;
                 // Is an enemy within field of view:
-                input[5] = this.gameObject.GetComponent<FieldOfView>().IsEnemyWithinFieldOfView();
+                input[7] = this.gameObject.GetComponent<FieldOfView>().IsEnemyWithinFieldOfView();
                 // Enemy left or right:
-                input[6] = this.gameObject.GetComponent<FieldOfView>().IsEnemyLeftOrRight(this.gameObject.transform);
+                input[8] = this.gameObject.GetComponent<FieldOfView>().IsEnemyLeftOrRight(this.gameObject.transform);
                 // Am I looking directly at enemy:
-                input[7] = this.gameObject.GetComponent<FieldOfView>().IsLookingStraightAtEnemy(this.gameObject.transform);
+                input[9] = this.gameObject.GetComponent<FieldOfView>().IsLookingStraightAtEnemy(this.gameObject.transform);
                 
                 
                 float[] output = nn.Run(input);
 
-                //Debug.Log("Input: " + input[0] + " " + input[1] + " " + input[2] + " " + input[3] + " " + input[4] + " " + input[5] + " " + input[6] + " " + input[7]);
-                //Debug.Log("output: " + output[0] + " " + output[1] + " " + output[2] + " " + output[3]);
+                Debug.Log("Input: " + input[0] + " " + input[1] + " " + input[2] + " " + input[3] + " " + input[4] + " " + input[5] + " " + input[6] + " " + input[7]);
+                Debug.Log("output: " + output[0] + " " + output[1] + " " + output[2] + " " + output[3]);
                 
 
                 // Output functions:
@@ -230,7 +238,7 @@ public class CharacterActions : MonoBehaviour {
         // Set up an IEnumerator which checks every half second for a total of 3 seconds if player is colliding, and a bool isColliding that is set true here, and false in OnTriggerExit
         // If not colliding all the time, stop checking for more, if entering collision again, set up IEnumerator again.
         //TODO if colliding with own flag, if noone is holding it - then put back to base after staying on it for few seconds.
-        //TODO FUTURE: Add another input to network: "Is our flag on the ground(not in base)?" && "Am I standing on our flag?"
+        //TODO: Add another input to network: "Is our flag on the ground(not in base)?" && "Am I standing on our flag?"
         if (myTeam == "Red")
         {
 
@@ -263,7 +271,6 @@ public class CharacterActions : MonoBehaviour {
             {
                 try
                 {
-                    //TODO people can only score if their flag is stored in their base.
                     GameObject flag = this.gameObject.transform.Find("FlagPoleBlue").gameObject;
                     flag.transform.position = bluePosition;
                     flag.transform.parent = null;
@@ -277,12 +284,11 @@ public class CharacterActions : MonoBehaviour {
                     //Debug.Log("IDK");
                 }
             }
-            // TODO make teams able to score points:
         }
         else if (myTeam == "Blue")
         {
 
-            // Retrieve own flag: TODO do differently later on.
+            // Retrieve own flag: TODO make player have to wait a couple seconds. TODO: make player wait a random amount of seconds to capture flag from enemy base aswell?
             if (other.gameObject.tag == "Blue")
             {
                 // You can not pickup your flag if someone else is holding it.
@@ -378,7 +384,7 @@ public class CharacterActions : MonoBehaviour {
         transform.Rotate(Vector3.down * angleAmount * rotateSpeed * Time.deltaTime * 50);
     }
 
-    public void ShootBullet()   // Shoots a bullet from players position and direction forward. TODO
+    public void ShootBullet()   // Shoots a bullet from players position and direction forward.
     {
         if (Time.time > nextBulletShotTime) // Make sure that player only can shoot one bullet every now and then.
         {

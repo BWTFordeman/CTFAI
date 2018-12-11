@@ -346,7 +346,7 @@ MonoBehaviour:
   bulletPrefab: {fileID: 1492413236086144, guid: 3e07029c52980ce4d866514e0dc99fd2,
     type: 2}
   myTeam: Blue
-  rotateSpeed: 35
+  rotateSpeed: 30
   movSpeed: 7
 --- !u!135 &135423089604797714
 SphereCollider:

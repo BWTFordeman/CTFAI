@@ -27,15 +27,8 @@ public class PathFinder
         return (Vector3.Angle(goalDirection, lookDirection) < 10) ? 1 : 0;
     }
     
-
     
-
-
-    //TODO, make several paths to goal,
-    //Make a new path to goal when player starts game/respawns,
-    //If an enemy is within field of view, this enemy is the current goal(delete current path), if there is no enemy within field of view AND path is null, create new one.
-    //If holding flag, go for base, if flag is not there, spin right without moving.
-
+    
     public PathFinder()
     {
         checkedList = new List<Node>();
@@ -49,14 +42,16 @@ public class PathFinder
     {
 
     }
-    
-    public int GetComplexPath(int startX, int startZ, int goalX, int goalZ, Transform playerTransform) // same as 'def aStar():' in python code. with some adjustments
+
+    public int IsLookingStraightAtGoal(Transform playerTransform)
     {
-        // "Transform" playerpositions into valid positions in pathfinder xD :
 
-        //TODO make playerTransform go up if over .5 and down if below .5, to get more approximate position.
+        return 0;
+    }
 
-        //TODO fix so that z value is correct...
+
+    public int GetComplexPath(int startX, int startZ, int goalX, int goalZ, Transform playerTransform) // same as 'def aStar():' in python code. with some adjustments
+    {   
 
         Vector3 validPosition = new Vector3(playerTransform.position.x + 9, playerTransform.position.y, (playerTransform.position.z * -1) -1);
 
@@ -107,7 +102,7 @@ public class PathFinder
     {
         //Debug.Log("updating goal");
         bool updated = false;
-        if (goalPosition.x > 0) //TODO when player reached final goal, enemyBasePath[(int)goalPosition.x - 1,(int)goalPosition.z] will be 4. then just run in circles until new path is made.(at same time actually...)
+        if (goalPosition.x > 0) 
         {
             if (enemyBasePath[(int)goalPosition.z - 1,(int)goalPosition.x] == 3)
             {

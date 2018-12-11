@@ -3,7 +3,6 @@ using System.IO;
 using UnityEngine;
 
 // Simple Neural Network used for AI in a simple capture the flag game, I added some extra functionality for visualization and saving/loading the brain into textfiles.
-// so you won't have to train your network before every game.
 public class NeuralNetwork
 {
     int[] layer; //layer information
@@ -52,14 +51,13 @@ public class NeuralNetwork
         return returnValue;
     }
     
-
-    // Saves the weights of the network in files. TODO: maybe use 1 file and make several layers inside there?..
+    
     public void SaveBrain()
     {
-        
-        string layer1Path = "Assets/Resources/layer-1.txt";
-        string layer2Path = "Assets/Resources/layer-2.txt";
-        string layer3Path = "Assets/Resources/layer-3.txt";
+        // Change here aswell:
+        string layer1Path = "Assets/Resources/layer-1-Gen200.txt";
+        string layer2Path = "Assets/Resources/layer-2-Gen200.txt";
+        string layer3Path = "Assets/Resources/layer-3-Gen200.txt";
 
         // Write to file:
         StreamWriter layer1Writer = new StreamWriter(layer1Path, false);
@@ -100,14 +98,15 @@ public class NeuralNetwork
         Debug.Log("Saved Brain!");
     }
 
-    // Loads weights from a file:
+    // Loads weights from files:
     public void LoadBrain()
     {
         Debug.Log("Loading brain!");
-        string layer1Path = "Assets/Resources/layer-1.txt";
-        string layer2Path = "Assets/Resources/layer-2.txt";
-        string layer3Path = "Assets/Resources/layer-3.txt";
-        
+        // Change names here when testing neural network for how precise it is after x amount of training.
+        string layer1Path = "Assets/Resources/layer-1-Gen1000.txt";
+        string layer2Path = "Assets/Resources/layer-2-Gen1000.txt";
+        string layer3Path = "Assets/Resources/layer-3-Gen1000.txt";
+
         StreamReader reader1 = new StreamReader(layer1Path);
         StreamReader reader2 = new StreamReader(layer2Path);
         StreamReader reader3 = new StreamReader(layer3Path);
@@ -115,10 +114,10 @@ public class NeuralNetwork
         int inputNr = 0;
 
         string line;
-        while ((line = reader1.ReadLine()) != null)
+        while ((line = reader1.ReadLine()) != null) // Read each line until no more left:
         {
-            string[] bits = line.Split(' ');
-            for (int i = 0; i < bits.Length - 1; i++)
+            string[] bits = line.Split(' '); // Split up line on blank character.
+            for (int i = 0; i < bits.Length - 1; i++) // Set every weight in network:
             {
                 layers[0].weights[inputNr, i] = float.Parse(bits[i]);
             }
@@ -159,7 +158,6 @@ public class NeuralNetwork
         // Colorize nodes in all layers:
         visualizerObject.GetComponent<NetworkVisualization>().SetNodeColors(0, inputs);
         visualizerObject.GetComponent<NetworkVisualization>().SetNodeColors(1, layers[0].FeedForward(inputs));
-        // TODO make it more modular by having a for loop of length of network by amount of layers:
         visualizerObject.GetComponent<NetworkVisualization>().SetNodeColors(2, layers[1].FeedForward(layers[0].outputs));
         visualizerObject.GetComponent<NetworkVisualization>().SetNodeColors(3, layers[2].FeedForward(layers[1].outputs));
     }
@@ -168,8 +166,7 @@ public class NeuralNetwork
     // Feeds input forward in the network:
     public float[] FeedForward(float[] inputs)
     {
-        // TODO remove output here. not used anymore.
-        float[] output = layers[0].FeedForward(inputs);
+        layers[0].FeedForward(inputs);
 
         for (int i = 1; i < layers.Length; i++)
         {
@@ -289,7 +286,7 @@ public class NeuralNetwork
             for (int i = 0; i < numberOfOuputs; i++)
                 gamma[i] = error[i] * TanHDer(outputs[i]);
 
-            // Caluclating detla weights.
+            // Calculating delta weights.
             for (int i = 0; i < numberOfOuputs; i++)
             {
                 for (int j = 0; j < numberOfInputs; j++)
@@ -316,7 +313,7 @@ public class NeuralNetwork
                 gamma[i] *= TanHDer(outputs[i]);
             }
 
-            // Caluclating detla weights.
+            // Calculating delta weights.
             for (int i = 0; i < numberOfOuputs; i++)
             {
                 for (int j = 0; j < numberOfInputs; j++)

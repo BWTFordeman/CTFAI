@@ -10,18 +10,18 @@ public class NetworkVisualization : MonoBehaviour {
     public GameObject Canvas;
 
     // Arrays used to get position so I can set values for all those crazy dendrites, also to set colors of nodes.
-    private GameObject[] layer1Nodes = new GameObject[8];
+    private GameObject[] layer1Nodes = new GameObject[10];
     private GameObject[] layer2Nodes = new GameObject[25];
     private GameObject[] layer3Nodes = new GameObject[25];
     private GameObject[] layer4Nodes = new GameObject[4];
 
 
     // Dendrite layers:
-    private GameObject[] firstLayer = new GameObject[8 * 25];
+    private GameObject[] firstLayer = new GameObject[10 * 25];
     private GameObject[] secondLayer = new GameObject[25 * 25];
     private GameObject[] thirdLayer = new GameObject[25 * 4];
 
-    readonly NeuralNetwork nn = new NeuralNetwork(new int[] { 8, 25, 25, 4 });
+    readonly NeuralNetwork nn = new NeuralNetwork(new int[] { 10, 25, 25, 4 });
 
     // Used to change colors:
     private Renderer _renderer;
@@ -33,8 +33,10 @@ public class NetworkVisualization : MonoBehaviour {
         // Load in data to network:
         nn.LoadBrain();
 
+        
 
-        // Get nodes in visualization:      //TODO MAKE nodes instead of getting them...
+
+        // Get nodes in visualization:     
         for (int i = 0; i < layer1Nodes.Length; i++)
         {
             if (i == 0)
@@ -79,7 +81,7 @@ public class NetworkVisualization : MonoBehaviour {
         
 
         // Create dendrites:
-        for (int j = 0; j < 8; j++)
+        for (int j = 0; j < 10; j++)
         {
             for (int i = 0; i < 25; i++)
             {
@@ -88,9 +90,9 @@ public class NetworkVisualization : MonoBehaviour {
 
                 // Set position of object:
                 Vector3 tempPosition = firstLayer[dendriteNr].transform.position;
-                tempPosition.y += 1.05f;
+                tempPosition.y += 1.1f;
                 tempPosition.y -= (i * 0.16f);   // Set position depending on node it goes to.
-                tempPosition.y -= (j * 0.5f);    // Set position depending on each node it comes from.
+                tempPosition.y -= (j * 0.4f);    // Set position depending on each node it comes from.
                 firstLayer[dendriteNr].transform.position = tempPosition;
 
                 // Set rotation:
@@ -102,10 +104,7 @@ public class NetworkVisualization : MonoBehaviour {
                 tempScale.z = 0;
                 tempScale.z += (2.0f * distance);
                 firstLayer[dendriteNr].transform.localScale = tempScale;
-
-                /*// I don't need shadows, so turning it off makes the game more efficient.
-                firstLayer[dendriteNr].GetComponent<Renderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-                firstLayer[dendriteNr].GetComponent<Renderer>().receiveShadows = false;*/
+                
             }
         }
 
@@ -162,9 +161,8 @@ public class NetworkVisualization : MonoBehaviour {
                 thirdLayer[dendriteNr].transform.localScale = tempScale;
             }
         }
-
+        
         SetColor(); // Sets color of dendrites(weights)
-
         // Change colors of nodes:
         IEnumerator coroutine;
         coroutine = Visualize();
@@ -176,9 +174,9 @@ public class NetworkVisualization : MonoBehaviour {
         while (true)
         {
             // Change the color of nodes depending on their value in network when running with random inputs:
-            float[] input = new float[8];
+            float[] input = new float[10];
             input[0] = 1;
-            for (int i = 1; i < 8; i++)
+            for (int i = 1; i < 10; i++)
             {
                 input[i] = (Random.Range(0, 100) < 50) ? 1 : 0;
             }
@@ -256,7 +254,7 @@ public class NetworkVisualization : MonoBehaviour {
 
         // Change color:
         // First layer:
-        for (int j = 0; j < 8; j++) // Nodes
+        for (int j = 0; j < 10; j++) // Nodes
         {
             for (int k = 0; k < 25; k++)    // Dendrites
             {

@@ -99,17 +99,8 @@ public class FieldOfView : MonoBehaviour {
         viewMesh = new Mesh();
         viewMesh.name = "View Mesh";
         viewMeshFilter.mesh = viewMesh;
-        //StartCoroutine("findTargetsWithDelay", .2f);
     }
-
-    /*IEnumerator findTargetsWithDelay(float delay)   // We use this for the AI to be able to see other teammates/enemies, to act upon.
-    {
-        while(true)
-        {
-            yield return new WaitForSeconds(delay);
-            findVisibleTargets();
-        }
-    }*/
+    
 
     void LateUpdate()
     {
